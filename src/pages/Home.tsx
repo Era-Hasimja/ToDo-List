@@ -3,45 +3,84 @@ import { Link } from "react-router-dom";
 import { NewTask } from "../components/NewTask";
 import { Props } from "../interfaces";
 
-const initList = {
-  task: [],
-};
-
-const getLocalStorage = () => {
-  const list = localStorage.getItem("list");
-  return list ? JSON.parse(list) : initList;
-};
-
 export const Home = () => {
+  const [addTask, setAddTask] = useState(() => {
+    // const savedTasks = JSON.parse(localStorage.getItem("tasks"));
+    const savedTasksJson = localStorage.getItem("tasks");
+    const savedTasks = savedTasksJson ? JSON.parse(savedTasksJson) : null;
+
+    console.log(savedTasks);
+    let done_tasks = [];
+    let todo_tasks = [];
+    let inprogress_tasks = [];
+    if (savedTasks) {
+      for (let i = 0; i < savedTasks.length; i++) {
+        // console.log(savedTasks[i].status);
+        switch (savedTasks[i].status) {
+          case "to-do":
+            todo_tasks.push(savedTasks[i]);
+            break;
+          case "done":
+            done_tasks.push(savedTasks[i]);
+            break;
+          case "in-progress":
+            inprogress_tasks.push(savedTasks[i]);
+            break;
+        }
+      }
+    }
+
+    console.log("done tasks -->>>", done_tasks);
+    console.log("todo-tasks ->>", todo_tasks);
+    console.log("inprogress-tasks ->>", inprogress_tasks);
+
+    if (savedTasks) {
+      return savedTasks;
+    } else {
+      return [];
+    }
+  });
+
   const [task, setTask] = useState<string>("");
-  const [addTask, setAddTask] = useState<Props[]>([]);
-  const [list, setList] = useState(getLocalStorage());
 
   useEffect(() => {
-    localStorage.setItem("list", JSON.stringify(list));
-  }, [list]);
+    localStorage.setItem("tasks", JSON.stringify(addTask));
+  }, [addTask]);
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
     setTask(event.target.value);
   };
 
-  const addNewTask = (): void => {
-    const newTask = { taskName: task };
-    setAddTask([...addTask, newTask]);
+  const handleCreateTask = () => {
+    if (task !== "") {
+      setAddTask([
+        ...addTask,
+        {
+          id: addTask.length + 1,
+          taskName: task.trim(),
+          status: "to-do",
+        },
+      ]);
+    }
     setTask("");
-
-    setList((prev: any) => ({
-      ...prev,
-      list: [...prev, list],
-    }));
   };
 
-  const remove = (removeTask: string): void => {
-    setAddTask(
-      addTask.filter((task) => {
-        return task.taskName != removeTask;
-      })
-    );
+  const handleDeleteTask = (id: number) => {
+    const removeItem = addTask.filter((task: any) => {
+      return task.id !== id;
+    });
+    setAddTask(removeItem);
+  };
+
+  const updateStatus = (id: number, newStatus: string) => {
+    const update = addTask.map((task: any) => {
+      if (task.id === id) {
+        return { ...task, status: newStatus };
+      }
+      return task;
+    });
+
+    setAddTask(update);
   };
 
   return (
@@ -55,11 +94,11 @@ export const Home = () => {
             placeholder="Write your task here..."
             aria-label="Write your task here..."
             aria-describedby="basic-addon2"
-            onChange={handleChange}
+            onChange={handleInputChange}
           />
         </div>
         <div className="text-right">
-          <button className="btn mb-3 btn-success" onClick={addNewTask}>
+          <button className="btn mb-3 btn-success" onClick={handleCreateTask}>
             Create
           </button>
         </div>
@@ -74,12 +113,22 @@ export const Home = () => {
         <Link className="btn btn-info" to={"done"}>
           Done
         </Link>
+        <Link className="btn btn-info " to={"users"}>
+          View Users
+        </Link>
       </div>
       <div className="">
-        {addTask.map((task: Props, key: number) => {
-          return <NewTask key={key} task={task} remove={remove} />;
-        })}
+        {addTask.map((task: any) => (
+          <NewTask
+            key={task.id}
+            task={task}
+            remove={handleDeleteTask}
+            updateStatus={updateStatus}
+          />
+        ))}
       </div>
     </div>
   );
 };
+
+//duhet mi lidh tash me faqet done edhe in-progress

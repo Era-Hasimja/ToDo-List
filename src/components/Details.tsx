@@ -1,8 +1,9 @@
 export const Details = () => {
   return (
-    <div className="">
+    <div className="container form-group mt-5">
       <div>
-        <h1>DETAILS PAGE</h1>
+        <label htmlFor="comment">Describe your task:</label>
+        <textarea className="form-control" rows={5} id="comment"></textarea>
       </div>
     </div>
   );
