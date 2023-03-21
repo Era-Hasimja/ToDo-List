@@ -18,7 +18,7 @@ export const NewTask = ({
   const taskInProgress = task.inProgress === "in-progress";
 
   return (
-    <div className="d-flex mt-5 ">
+    <div className=" mt-5">
       <div className="mt-2 lb ">
         <span className="label p-3 label-light rounded border text-secondary">
           {!taskCompleted && (
@@ -38,18 +38,15 @@ export const NewTask = ({
           {task.taskName}
         </span>
       </div>
-      <div>{task.description && <span>{task.description}</span>}</div>
-      {/* <div>
-        {task.dateAndTime && (
-          <span>
-            {task.dateAndTime instanceof Date
-              ? task.dateAndTime.toLocaleDateString()
-              : new Date(task.dateAndTime).toLocaleDateString()}
-          </span>
-        )}
-      </div> */}
-      <div> {task.user && <span>{task.user}</span>}</div>
-      <div className="btn-toolbar">
+      <div className="mt-5  btn-toolbar">
+        <span className=" label p-3 label-light rounded border text-secondary">
+          Description: {task.description}
+        </span>
+        <span className="label p-3 label-light rounded border text-secondary">
+          User: {task.user}
+        </span>
+      </div>
+      <div className="btn-toolbar mt-5">
         <Link className="btn btn-success" to={`/details/${task.id}`}>
           Details
         </Link>
