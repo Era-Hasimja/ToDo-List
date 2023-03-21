@@ -12,10 +12,10 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />}></Route>
-          <Route path="/details" element={<Details />}></Route>
-          <Route path="/in-progress" element={<InProgress />}></Route>
-          <Route path="/done" element={<Done />}></Route>
-          <Route path="/users" element={<ViewUsers />}></Route>
+          <Route path="details/:id" element={<Details />}></Route>
+          <Route path="in-progress" element={<InProgress />}></Route>
+          <Route path="done" element={<Done />}></Route>
+          <Route path="users" element={<ViewUsers />}></Route>
         </Routes>
       </BrowserRouter>
     </div>

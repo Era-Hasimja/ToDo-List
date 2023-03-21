@@ -1,5 +1,9 @@
 export interface Props {
   taskName: string;
   id: number;
-  status: string;
+  isCompleted: string;
+  inProgress: string;
+  // dateAndTime: Date;
+  description: string;
+  user: string;
 }

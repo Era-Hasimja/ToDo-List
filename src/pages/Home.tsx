@@ -1,47 +1,25 @@
 import { ChangeEvent, SetStateAction, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { NewTask } from "../components/NewTask";
 import { Props } from "../interfaces";
 
+const localStorageData = () => {
+  const savedTasks = localStorage.getItem("tasks");
+
+  if (savedTasks) {
+    return JSON.parse(savedTasks);
+  } else {
+    return [];
+  }
+};
 export const Home = () => {
-  const [addTask, setAddTask] = useState(() => {
-    // const savedTasks = JSON.parse(localStorage.getItem("tasks"));
-    const savedTasksJson = localStorage.getItem("tasks");
-    const savedTasks = savedTasksJson ? JSON.parse(savedTasksJson) : null;
-
-    console.log(savedTasks);
-    let done_tasks = [];
-    let todo_tasks = [];
-    let inprogress_tasks = [];
-    if (savedTasks) {
-      for (let i = 0; i < savedTasks.length; i++) {
-        // console.log(savedTasks[i].status);
-        switch (savedTasks[i].status) {
-          case "to-do":
-            todo_tasks.push(savedTasks[i]);
-            break;
-          case "done":
-            done_tasks.push(savedTasks[i]);
-            break;
-          case "in-progress":
-            inprogress_tasks.push(savedTasks[i]);
-            break;
-        }
-      }
-    }
-
-    console.log("done tasks -->>>", done_tasks);
-    console.log("todo-tasks ->>", todo_tasks);
-    console.log("inprogress-tasks ->>", inprogress_tasks);
-
-    if (savedTasks) {
-      return savedTasks;
-    } else {
-      return [];
-    }
-  });
-
+  const [addTask, setAddTask] = useState<Props[]>(localStorageData);
   const [task, setTask] = useState<string>("");
+
+  const filteredTasks = addTask.filter(
+    (task: Props) =>
+      task.inProgress != "in-progress" && task.isCompleted != "done"
+  );
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(addTask));
@@ -58,7 +36,11 @@ export const Home = () => {
         {
           id: addTask.length + 1,
           taskName: task.trim(),
-          status: "to-do",
+          isCompleted: "",
+          inProgress: "",
+          // dateAndTime: new Date(),
+          description: "",
+          user: "",
         },
       ]);
     }
@@ -66,21 +48,32 @@ export const Home = () => {
   };
 
   const handleDeleteTask = (id: number) => {
-    const removeItem = addTask.filter((task: any) => {
+    const removeItem = addTask.filter((task) => {
       return task.id !== id;
     });
     setAddTask(removeItem);
   };
 
-  const updateStatus = (id: number, newStatus: string) => {
-    const update = addTask.map((task: any) => {
+  const handleTaskCompletion = (id: number) => {
+    const updatedTasks = addTask.map((task) => {
       if (task.id === id) {
-        return { ...task, status: newStatus };
+        return { ...task, isCompleted: "done" };
+      } else {
+        return task;
       }
-      return task;
     });
+    setAddTask(updatedTasks);
+  };
 
-    setAddTask(update);
+  const handleTaskProgression = (id: number) => {
+    const updatedTasks = addTask.map((task) => {
+      if (task.id === id) {
+        return { ...task, inProgress: "in-progress", dateAndTime: new Date() };
+      } else {
+        return task;
+      }
+    });
+    setAddTask(updatedTasks);
   };
 
   return (
@@ -107,28 +100,27 @@ export const Home = () => {
         <Link className="btn btn-info" to={"/"}>
           To Do
         </Link>
-        <Link className="btn btn-info" to={"in-progress"}>
+        <Link className="btn btn-info" to={"/in-progress"}>
           In Progress
         </Link>
-        <Link className="btn btn-info" to={"done"}>
+        <Link className="btn btn-info" to={"/done"}>
           Done
         </Link>
-        <Link className="btn btn-info " to={"users"}>
+        <Link className="btn btn-info " to={"/users"}>
           View Users
         </Link>
       </div>
       <div className="">
-        {addTask.map((task: any) => (
+        {filteredTasks.map((task: any) => (
           <NewTask
             key={task.id}
             task={task}
-            remove={handleDeleteTask}
-            updateStatus={updateStatus}
+            handleDeleteTask={handleDeleteTask}
+            handleTaskCompletion={handleTaskCompletion}
+            handleTaskProgression={handleTaskProgression}
           />
         ))}
       </div>
     </div>
   );
 };
-
-//duhet mi lidh tash me faqet done edhe in-progress
